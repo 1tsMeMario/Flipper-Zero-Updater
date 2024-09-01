@@ -55,6 +55,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/output/*.exe
+        asset_path: Flipper-Zero-Updater/build/output/*.exe
         asset_name: your_executable_name.exe
         asset_content_type: application/octet-stream

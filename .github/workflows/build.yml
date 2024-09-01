@@ -38,31 +38,47 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.2.0-node20
       with:
-        tag_name: latest
-        release_name: Latest Release
-        draft: false
-        prerelease: false
-        
-    - name: Release
-      uses: Shopify/upload-to-release@v2.0.0
-      with:
-       name: FlipperZero-Updater.exe
-       path: Flipper-Zero-Updater/build/output/*.exe
-       content-type: application/octet-stream
-       repo-token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        name: FlipperZero-Updater
+        path: "*.exe"
+        if-no-files-found: warn
+        retention-days: 1
+        include-hidden-files: false
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+    - name: Publish GitHub Release Artifacts
+      uses: SierraSoftworks/gh-releases@v1.0.7
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Flipper-Zero-Updater/build/output/*.exe
-        asset_name: your_executable_name.exe
-        asset_content_type: application/octet-stream
+        files: |
+          bin/release-windows/your_executable_name.exe
+          bin/release-linux/your_executable_name
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+
+        # Overwrite existing artifacts with the same name for the specified release.
+        overwrite: true
+
+        # The release tag which should receive the artifacts.
+        # By default, this will be discovered based on the build environment,
+        # but you may specify it here if automatic discovery does not work for your use case.
+        release_tag: latest
+
+        # The Hashicorp Vault server which should be used to generate signatures.
+        # Uncomment and set if you are using Vault for signature generation.
+        # vault-server: https://vault.yourdomain.com
+
+        # The token used to access Hashicorp Vault for generation of signatures.
+        # Uncomment and set if you are using Vault for signature generation.
+        # vault-token: ${{ secrets.VAULT_TOKEN }}
+
+        # The path that the Vault transit engine is mounted at (defaults to 'transit').
+        # Uncomment and set if you are using Vault for signature generation.
+        # vault-path: transit
+
+        # The name of the signing key to use for signature generation through Vault.
+        # Uncomment and set if you are using Vault for signature generation.
+        # vault-signing-key: your-signing-key
+
+        # The hash algorithm which should be used to generate a unique hash for the content being signed.
+        # Uncomment and set if you are using Vault for signature generation.
+        # vault-hash-algorithm: sha256

@@ -1,6 +1,6 @@
 # Flipper Zero Firmware Updater
 
-Flipper Zero Firmware Updater is a C++ application designed to simplify the process of downloading, building, and flashing firmware to your Flipper Zero device. The program provides a user-friendly interface to manage different firmware versions and flash them to your device via USB.
+Flipper Zero Firmware Updater is a C++ application designed to simplify the process of building or flashing firmware to your Flipper Zero device. The program provides a user-friendly interface to manage different firmware versions and flash them to your device via USB.
 
 ## Features
 

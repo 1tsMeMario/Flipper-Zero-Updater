@@ -1,54 +1,77 @@
-name: Build, Tag, and Release
+name: MSBuild
 
 on:
   push:
-    branches:
-      - main  # Trigger on push to the main branch
-  workflow_dispatch:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Set up Visual Studio
-      uses: actions/setup-msbuild@v1
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Build the project
-      run: msbuild FlipperZero.sln /p:Configuration=Release
+    - name: Restore NuGet packages
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Get current date
-      id: get_date
-      run: echo "DATE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+    - name: Build
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} ${{ env.SOLUTION_FILE_PATH }}
+
+    - name: Archive build artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: 'build/output/'
 
     - name: Create a new tag
       id: tag_version
       run: |
-        TAG=v1.0.${{ steps.get_date.outputs.DATE_TAG }}
-        echo "New tag: $TAG"
-        git tag $TAG
-        git push origin $TAG
+        git fetch --tags
+        $currentDate = Get-Date -Format "yyyyMMddHHmmss"
+        $NEW_TAG = "v$currentDate"
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+        echo "tag=$NEW_TAG" >> $env:GITHUB_ENV
+      shell: pwsh
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-    - name: Create Release
+    - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
-        tag_name: ${{ steps.tag_version.outputs.TAG }}
-        release_name: Release ${{ steps.tag_version.outputs.TAG }}
+        tag_name: ${{ env.tag }}
+        release_name: "Release ${{ env.tag }}"
+        body: "Automatic release from GitHub Actions"
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
+    - name: Upload build artifact to release
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/output/*.exe
-        asset_name: your_executable_name.exe
+        asset_path: 'build/output/FlipperZero-Updater.exe'
+        asset_name: FlipperZero-Updater.exe
         asset_content_type: application/octet-stream

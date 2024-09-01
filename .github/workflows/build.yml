@@ -47,38 +47,20 @@ jobs:
         retention-days: 1
         include-hidden-files: false
 
+    - name: Create a new tag
+      id: tag_version
+      run: |
+       git fetch --tags
+       NEW_TAG="v$(date +'%Y%m%d%H%M%S')"
+       git tag $NEW_TAG
+       git push origin $NEW_TAG
+       echo "tag=$NEW_TAG" >> $GITHUB_ENV
+
     - name: Publish GitHub Release Artifacts
       uses: SierraSoftworks/gh-releases@v1.0.7
       with:
         files: |
-          bin/release-windows/your_executable_name.exe
-          bin/release-linux/your_executable_name
+          build/output/FlipperZero-Updater.exe
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
-
-        # Overwrite existing artifacts with the same name for the specified release.
         overwrite: true
-
-        # The release tag which should receive the artifacts.
-        # By default, this will be discovered based on the build environment,
-        # but you may specify it here if automatic discovery does not work for your use case.
-        release_tag: latest
-
-        # The Hashicorp Vault server which should be used to generate signatures.
-        # Uncomment and set if you are using Vault for signature generation.
-        # vault-server: https://vault.yourdomain.com
-
-        # The token used to access Hashicorp Vault for generation of signatures.
-        # Uncomment and set if you are using Vault for signature generation.
-        # vault-token: ${{ secrets.VAULT_TOKEN }}
-
-        # The path that the Vault transit engine is mounted at (defaults to 'transit').
-        # Uncomment and set if you are using Vault for signature generation.
-        # vault-path: transit
-
-        # The name of the signing key to use for signature generation through Vault.
-        # Uncomment and set if you are using Vault for signature generation.
-        # vault-signing-key: your-signing-key
-
-        # The hash algorithm which should be used to generate a unique hash for the content being signed.
-        # Uncomment and set if you are using Vault for signature generation.
-        # vault-hash-algorithm: sha256
+        release_tag: ${{ env.tag }}

@@ -51,11 +51,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-    - name: Publish GitHub Release Artifacts
-      uses: SierraSoftworks/gh-releases@v1.0.7
-      with:
-        files: |
-          build/output/FlipperZero-Updater.exe
-        token: ${{ secrets.PAT_TOKEN }}
-        overwrite: true
-        release_tag: ${{ env.tag }}
+    - name: GitHub Releases
+      uses: fnkr/github-action-ghr@v1.3

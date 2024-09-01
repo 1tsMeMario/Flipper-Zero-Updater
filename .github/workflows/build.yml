@@ -51,10 +51,13 @@ jobs:
       id: tag_version
       run: |
        git fetch --tags
-       NEW_TAG="v$(date +'%Y%m%d%H%M%S')"
+       $currentDate = Get-Date -Format "yyyyMMddHHmmss"
+       $NEW_TAG = "v$currentDate"
        git tag $NEW_TAG
        git push origin $NEW_TAG
-       echo "tag=$NEW_TAG" >> $GITHUB_ENV
+       echo "tag=$NEW_TAG" >> $env:GITHUB_ENV
+      shell: pwsh
+
 
     - name: Publish GitHub Release Artifacts
       uses: SierraSoftworks/gh-releases@v1.0.7

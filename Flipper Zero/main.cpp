@@ -98,18 +98,21 @@ void downloadFirmware() {
         resetColor();
         system("");
     }
+
     if (future2.get() != 1)
     {
         setColor("\033[1;31m");
         std::cout << "Momentum Firmware failed to download" << std::endl;
         resetColor();
     }
+
     if (future3.get() != 1)
     {
         setColor("\033[1;31m");
         std::cout << "Xtreme Firmware failed to download" << std::endl;
         resetColor();
     }
+
     if (future4.get() != 1)
     {
         setColor("\033[1;31m");

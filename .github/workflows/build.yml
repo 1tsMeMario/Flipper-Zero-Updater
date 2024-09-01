@@ -41,41 +41,14 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Get latest tag
-      id: get_latest_tag
-      run: |
-        git fetch --tags
-        $latestTag = git describe --tags `git rev-list --tags --max-count=1`
-        if (-not $latestTag) { $latestTag = "v1.0.0" }
-        Write-Host "Latest tag: $latestTag"
-        echo "LATEST_TAG=$latestTag" >> $env:GITHUB_ENV
-
-    - name: Increment version and create new tag
-      id: tag_version
-      run: |
-        $latestTag = "${{ env.LATEST_TAG }}"
-        $versionPattern = "^v(\d+)\.(\d+)\.(\d+)$"
-        if ($latestTag -match $versionPattern) {
-          $major = [int]$matches[1]
-          $minor = [int]$matches[2]
-          $patch = [int]$matches[3] + 1
-          $newTag = "v$major.$minor.$patch"
-        } else {
-          $newTag = "v1.0.1"
-        }
-        Write-Host "New tag: $newTag"
-        git tag $newTag
-        git push origin $newTag
-        echo "TAG=$newTag" >> $env:GITHUB_ENV
-
-    - name: Create Release
+    - name: Create or Update Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.tag_version.outputs.TAG }}
-        release_name: Release ${{ steps.tag_version.outputs.TAG }}
+        tag_name: latest
+        release_name: Latest Release
         draft: false
         prerelease: false
 

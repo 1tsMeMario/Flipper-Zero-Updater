@@ -33,5 +33,5 @@ Before using this application, ensure you have the following installed:
    - If you decide to flash directly, the application will search for your Flipper Zero device.
    - Once found, it will begin building and flashing automatically.
    - If your Flipper device cannot be found:
-     1. Ensure your USB cable supports data transfer.
-     2. If it does, please try installing the serial port drivers provided in the most recent release.
+     - Ensure your USB cable supports data transfer.
+     - If it does, please try installing the serial port drivers provided in the most recent release.

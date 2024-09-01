@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -29,41 +29,33 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
 
     - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
-
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.2.0-node20
-      with:
-        name: FlipperZero-Updater
-        path: "*.exe"
-        if-no-files-found: warn
-        retention-days: 1
-        include-hidden-files: false
+      run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} ${{ env.SOLUTION_FILE_PATH }}
 
     - name: Create a new tag
       id: tag_version
       run: |
-       git fetch --tags
-       $currentDate = Get-Date -Format "yyyyMMddHHmmss"
-       $NEW_TAG = "v$currentDate"
-       git tag $NEW_TAG
-       git push origin $NEW_TAG
-       echo "tag=$NEW_TAG" >> $env:GITHUB_ENV
+        git fetch --tags
+        $currentDate = Get-Date -Format "yyyyMMddHHmmss"
+        $NEW_TAG = "v$currentDate"
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+        echo "tag=$NEW_TAG" >> $env:GITHUB_ENV
       shell: pwsh
-
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
     - name: Publish GitHub Release Artifacts
       uses: SierraSoftworks/gh-releases@v1.0.7
       with:
         files: |
           build/output/FlipperZero-Updater.exe
-        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        token: ${{ secrets.PAT_TOKEN }}
         overwrite: true
         release_tag: ${{ env.tag }}

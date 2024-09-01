@@ -48,6 +48,14 @@ jobs:
         release_name: Latest Release
         draft: false
         prerelease: false
+        
+    - name: Release
+      uses: Shopify/upload-to-release@v2.0.0
+      with:
+       name: FlipperZero-Updater.exe
+       path: Flipper-Zero-Updater/build/output/*.exe
+       content-type: application/octet-stream
+       repo-token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1

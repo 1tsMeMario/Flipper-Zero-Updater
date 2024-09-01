@@ -41,6 +41,15 @@ void downloadFirmware() {
     system("cls");
 
     setColor("\033[1;36m");
+    std::cout << "Downloading Stock Firmware" << std::endl;
+    resetColor();
+    git_clone("https://github.com/flipperdevices/flipperzero-firmware.git", "Stock");
+    std::cout << "Stock Firmware Downloaded" << std::endl;
+
+    Sleep(2500);
+    std::cout << "" << std::endl;
+
+    setColor("\033[1;36m");
     std::cout << "Downloading Mementum Firmware" << std::endl;
     resetColor();
     git_clone("https://github.com/Next-Flip/Momentum-Firmware.git", "Momentum");

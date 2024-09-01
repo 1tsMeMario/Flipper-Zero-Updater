@@ -21,10 +21,10 @@ Before using this application, ensure you have the following installed:
 1. Place this application in a folder anywhere on your computer.
 2. Run the application and select `Y` when it asks if you would like to download firmware:
    - It will download the latest versions of:
-     1. [Stock Firmware](https://github.com/flipperdevices/flipperzero-firmware)
-     2. [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware)
-     3. [Xtreme Firmware](https://github.com/Flipper-XFW/Xtreme-Firmware)
-     4. [RogueMaster Firmware](https://github.com/RogueMaster/flipperzero-firmware-wPlugins)
+     • [Stock Firmware](https://github.com/flipperdevices/flipperzero-firmware)
+     • [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware)
+     • [Xtreme Firmware](https://github.com/Flipper-XFW/Xtreme-Firmware)
+     • [RogueMaster Firmware](https://github.com/RogueMaster/flipperzero-firmware-wPlugins)
 
 3. Rerun the application once it finishes downloading.
 4. Select the firmware you want to use.

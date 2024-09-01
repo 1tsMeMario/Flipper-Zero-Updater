@@ -35,3 +35,5 @@ Before using this application, ensure you have the following installed:
    - If your Flipper device cannot be found:
      - Ensure your USB cable supports data transfer.
      - If it does, please try installing the serial port drivers provided in the most recent release.
+       - [x64 version](https://github.com/1tsMeMario/Flipper-Zero-Updater/releases/download/v20240901104916/SerialPort_Driver_Installer_x64.exe)
+       - [x32 version](https://github.com/1tsMeMario/Flipper-Zero-Updater/releases/download/v20240901104916/SerialPort_Driver_Installer_x32.exe)

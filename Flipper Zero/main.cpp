@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <thread>
+#include <future>
 #include <windows.h>
 #include <setupapi.h>
 #include <initguid.h>
@@ -20,8 +22,8 @@ void resetColor() {
     std::cout << "\033[0m";
 }
 
-void executeCommand(const std::string& command) {
-    system(command.c_str());
+int executeCommand(const std::string& command) {
+    return system(command.c_str());
 }
 
 std::string getUserInput(const std::string& prompt) {
@@ -33,53 +35,88 @@ std::string getUserInput(const std::string& prompt) {
     return input;
 }
 
-void git_clone(std::string url, std::string firmware_name)
+int git_clone(std::string url, std::string firmware_name)
 {
-    executeCommand("git clone --recursive --jobs 8 " + url + " " + firmware_name + " >nul 2>&1");
+    return executeCommand("git clone --recursive --jobs 8 " + url + " " + firmware_name + " >nul 2>&1");
 }
+
+int thread1()
+{
+    git_clone("https://github.com/flipperdevices/flipperzero-firmware.git", "Stock");
+    std::cout << "Stock Firmware Downloaded" << std::endl;
+    return 1;
+}
+
+int thread2()
+{
+    git_clone("https://github.com/Next-Flip/Momentum-Firmware.git", "Momentum");
+    std::cout << "Momentum Firmware Downloaded" << std::endl;
+    return 1;
+}
+
+int thread3()
+{
+    git_clone("https://github.com/Flipper-XFW/Xtreme-Firmware.git", "Xtreme");
+    std::cout << "Extreme Firmware Downloaded" << std::endl;
+    return 1;
+}
+
+int thread4()
+{
+    git_clone("https://github.com/RogueMaster/flipperzero-firmware-wPlugins.git", "RogueMaster");
+    std::cout << "RogueMaster Firmware Downloaded" << std::endl;
+    return 1;
+}
+
 void downloadFirmware() {
     system("cls");
 
     setColor("\033[1;36m");
     std::cout << "Downloading Stock Firmware" << std::endl;
     resetColor();
-    git_clone("https://github.com/flipperdevices/flipperzero-firmware.git", "Stock");
-    std::cout << "Stock Firmware Downloaded" << std::endl;
-
-    Sleep(2500);
-    std::cout << "" << std::endl;
+    std::future<int> future1 = std::async(std::launch::async, thread1);
 
     setColor("\033[1;36m");
-    std::cout << "Downloading Mementum Firmware" << std::endl;
+    std::cout << "Downloading Momentum Firmware" << std::endl;
     resetColor();
-    git_clone("https://github.com/Next-Flip/Momentum-Firmware.git", "Momentum");
-    std::cout << "Momentum Firmware Downloaded" << std::endl;
-
-
-    Sleep(2500);
-    std::cout << "" << std::endl;
+    std::future<int> future2 = std::async(std::launch::async, thread2);
 
     setColor("\033[1;36m");
     std::cout << "Downloading Xtreme Firmware" << std::endl;
     resetColor();
-    git_clone("https://github.com/Flipper-XFW/Xtreme-Firmware.git", "Xtreme");
-    std::cout << "Extreme Firmware Downloaded" << std::endl;
-
-    Sleep(2500);
-    std::cout << "" << std::endl;
+    std::future<int> future3 = std::async(std::launch::async, thread3);
 
     setColor("\033[1;36m");
     std::cout << "Downloading RogueMaster Firmware" << std::endl;
     resetColor();
-    git_clone("https://github.com/RogueMaster/flipperzero-firmware-wPlugins.git", "RogueMaster");
-    std::cout << "RogueMaster Firmware Downloaded" << std::endl;
+    std::future<int> future4 = std::async(std::launch::async, thread4);
 
-    Sleep(2500);
-    std::cout << "" << std::endl;
+    if (future1.get() != 1)
+    {
+        setColor("\033[1;31m");
+        std::cout << "Stock Firmware failed to download" << std::endl;
+        resetColor();
+        system("");
+    }
+    if (future2.get() != 1)
+    {
+        setColor("\033[1;31m");
+        std::cout << "Momentum Firmware failed to download" << std::endl;
+        resetColor();
+    }
+    if (future3.get() != 1)
+    {
+        setColor("\033[1;31m");
+        std::cout << "Xtreme Firmware failed to download" << std::endl;
+        resetColor();
+    }
+    if (future4.get() != 1)
+    {
+        setColor("\033[1;31m");
+        std::cout << "RogueMaster Firmware failed to download" << std::endl;
+        resetColor();
+    }
 
-    setColor("\033[1;32m");
-    std::cout << "All Firmware downloaded successfully.\n";
-    resetColor();
     Sleep(2500);
 
     std::cout << "Please restart app" << std::endl;
@@ -239,8 +276,8 @@ void buildFirmware(const std::string& root, const std::string& firmware_name) {
     std::string tgz_file = findTgzFile(path + "\\dist");
     moveAndRenameTgzFile(tgz_file, firmware_name, root);
 
-    SetConsoleTitle("Cleaning Up");
-    cleanUp(path);
+    //SetConsoleTitle("Cleaning Up");
+    //cleanUp(path);
 }
 
 void flashFirmware(const std::string& root, const std::string& firmware_name) {

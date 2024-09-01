@@ -1,0 +1,54 @@
+name: Build, Tag, and Release
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Visual Studio
+      uses: actions/setup-msbuild@v1
+
+    - name: Build the project
+      run: msbuild FlipperZero.sln /p:Configuration=Release
+
+    - name: Get current date
+      id: get_date
+      run: echo "DATE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+    - name: Create a new tag
+      id: tag_version
+      run: |
+        TAG=v1.0.${{ steps.get_date.outputs.DATE_TAG }}
+        echo "New tag: $TAG"
+        git tag $TAG
+        git push origin $TAG
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag_version.outputs.TAG }}
+        release_name: Release ${{ steps.tag_version.outputs.TAG }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/output/*.exe
+        asset_name: your_executable_name.exe
+        asset_content_type: application/octet-stream
